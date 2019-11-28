@@ -24,6 +24,8 @@ class Menu:
             11: self.showTreatmentHistoryByDesigner,
             12: self.showProductList,
             13: self.showPoints,
+            14: self.addUser,
+            15: self.addDesigner,
             99: self.byebye,
         }
         self.displayHeader()
@@ -48,6 +50,7 @@ class Menu:
         print(' 11. 디자이너 별 미용 이력 확인')
         print(' 12. 제품 목록 확인')
         print(' 13. 회원별 포인트 확인')
+        print(' 14. 회원 추가   \t\t15.디자이너 추가')
         print('\t\t\t\t99. quit')
         print('-----------------------------------------------------------------')
 
@@ -123,7 +126,7 @@ class Menu:
         res = cursor.fetchall()
 
         for x in res:
-            print("designer : %s , user : %s" % (x['dname'], x['uname']))
+            print("designer : %s, user : %s" % (x['dname'], x['uname']))
     
     # 5
     def showSalaryByDesigner(self):
@@ -133,7 +136,7 @@ class Menu:
         res = cursor.fetchall()
 
         for x in res:
-            print("designer : %s , salary : %s" % (x['name'], x['price']))
+            print("designer : %s, salary : %s" % (x['name'], x['price']))
 
     # 6
     def showWholePurchase(self):
@@ -144,7 +147,7 @@ class Menu:
 
         print ("== Whole product purchase list ==")
         for x in res:
-            print("user : %s , product name : %s, purchase date : %s" % (x['name'], x['product_name'], x['purchase_date']))
+            print("user : %s, product name : %s, purchase date : %s" % (x['name'], x['product_name'], x['purchase_date']))
 
     # 7
     def showPurchaseByUser(self):
@@ -156,7 +159,7 @@ class Menu:
         res = cursor.fetchall()
 
         for x in res:
-            print("user : %s , product name : %s, purchase date : %s" % (x['name'], x['product_name'], x['purchase_date']))
+            print("user : %s, product name : %s, purchase date : %s" % (x['name'], x['product_name'], x['purchase_date']))
 
     # 8
     def showPayByUser(self):
@@ -169,7 +172,7 @@ class Menu:
 
         print ("\nUser %s Payment" % (userName))
         for x in res:
-            print("user : %s , price : %s, method : %s, date : %s" % (x['name'], x['price'], x['purchase_method'], x['pay_date']))
+            print("user : %s, price : %s, method : %s, date : %s" % (x['name'], x['price'], x['purchase_method'], x['pay_date']))
 
     # 9
     def showMaxPayUser(self):
@@ -180,7 +183,7 @@ class Menu:
 
         print ("\n== Max Money Spend User ==")
         for x in res:
-            print("user : %s , price : %s" % (x['name'], x['price']))
+            print("user : %s, price : %s" % (x['name'], x['price']))
 
     # 10
     def showTreatmentHistoryByUser(self):
@@ -230,7 +233,59 @@ class Menu:
         print ("\n== User %s Point == " % (userName))
         for x in res:
             print("user : %s, point : %s" % (x['name'], x['point']) )
+    
+    def addUser(self):
+        print ("User name : ", end='')
+        userName = input()
+        print ("Phone number : ", end='')
+        phone = input()
+        print ("Designer name : ", end='')
+        designerName = input()
 
+        cursor = self.conn.cursor(dictionary=True)
+        sql = "select no from designers where name='%s'" % (designerName)
+        cursor.execute(sql)
+        res = cursor.fetchall()
+
+        designer_no = -1
+        for x in res:
+            designer_no = x['no']
+        
+        if designer_no == -1:
+            print("No designer %s" % designerName)
+            print("Check again.")
+            sys.exit(-1)
+        
+        cursor = self.conn.cursor()
+        sql = "insert into users (name, phone, register_date, recent_visit, designer_no) values (%s, %s, now(), now(), %s)"
+        val = (userName, phone, designer_no)
+        cursor.execute(sql, val)
+
+        self.conn.commit()
+
+        print("New user %s added." % userName)
+
+    def addDesigner(self):
+        print ("Designer name : ", end='')
+        designerName = input()
+        print ("Phone number : ", end='')
+        phone = input()
+        print ("Class (master/manager/staff): ", end='')
+        designerClass = input()
+
+        if designerClass not in ['master', 'manager', 'staff']:
+            print("Class error. Check again.")
+            sys.exit(-1)
+        
+        cursor = self.conn.cursor()
+        sql = "insert into designers (name, phone, class, start_date) values (%s, %s, %s, now())"
+        val = (designerName, phone, designerClass)
+        cursor.execute(sql, val)
+
+        self.conn.commit()
+
+        print("New designer %s added." % designerName)
+        print("Today is start date.")
 
     def byebye(self):
         print("bye bye")
