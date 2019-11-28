@@ -45,3 +45,22 @@
 ## ER Diagram
 
 ![ER_Diagram](img_md/ER_Diagram.png)
+
+## Menu
+
+![image-20191128234550288](img_md/image-20191128234550288.png)
+
+## Requirements
+
+1. Python3 (tested on 3.7.3)
+2. MySQL Server (tested on 5.7)
+
+## How to run
+
+```
+mysql -u USER -p < sql.sql
+pip3 install -r requirements.txt
+python3 run.py
+```
+
+> easy !
